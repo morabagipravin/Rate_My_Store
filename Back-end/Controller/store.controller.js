@@ -5,16 +5,39 @@ import { Op } from "sequelize";
 
 // Create store (admin only)
 const createStore = async (req, res) => {
+  console.log('createStore called with body:', req.body);
+  console.log('User from auth middleware:', req.user);
+  
   const { name, email, address, ownerId } = req.body;
   if (!name || !email || !address || !ownerId) {
+    console.log('Missing required fields:', { name, email, address, ownerId });
     return res.status(400).json({ message: "All fields are required (name, email, address, ownerId)" });
   }
   try {
+    // Check if owner exists
+    const owner = await User.findByPk(ownerId);
+    if (!owner) {
+      console.log('Owner not found with ID:', ownerId);
+      return res.status(400).json({ message: `Selected owner with ID ${ownerId} does not exist` });
+    }
+    if (owner.role !== 'owner') {
+      console.log('User is not an owner:', owner.role);
+      return res.status(400).json({ message: `Selected user (${owner.name}) is not a store owner. Current role: ${owner.role}` });
+    }
+    
+    // Check if store email already exists
     const existing = await Store.findOne({ where: { email } });
-    if (existing) return res.status(400).json({ message: "Store already exists" });
+    if (existing) {
+      console.log('Store with email already exists:', email);
+      return res.status(400).json({ message: "Store with this email already exists" });
+    }
+    
+    console.log('Creating store with data:', { name, email, address, ownerId });
     const store = await Store.create({ name, email, address, ownerId });
+    console.log('Store created successfully:', store);
     res.status(201).json({ message: "Store created successfully", store });
   } catch (err) {
+    console.error('Store creation error:', err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
@@ -68,31 +91,50 @@ const deleteStore = async (req, res) => {
 
 // Submit or update rating (user only)
 const submitRating = async (req, res) => {
+  console.log('submitRating called with body:', req.body);
+  console.log('User from auth middleware:', req.user);
+  
   const { storeId, rating } = req.body;
   const userId = req.user.id; // from auth middleware
   if (!storeId || !rating) return res.status(400).json({ message: "Store ID and rating required" });
   if (rating < 1 || rating > 5) return res.status(400).json({ message: "Rating must be between 1 and 5" });
+  
+  console.log('Processing rating:', { userId, storeId, rating });
+  
   try {
+    // Check if store exists
+    const store = await Store.findByPk(storeId);
+    if (!store) {
+      console.log('Store not found with ID:', storeId);
+      return res.status(404).json({ message: "Store not found" });
+    }
+    console.log('Store found:', store.name);
+    
     let userRating = await Rating.findOne({ where: { userId, storeId } });
     if (userRating) {
+      console.log('Updating existing rating');
       userRating.rating = rating;
       await userRating.save();
     } else {
+      console.log('Creating new rating');
       userRating = await Rating.create({ userId, storeId, rating });
     }
+    
     // Update store's average rating
     const ratings = await Rating.findAll({ where: { storeId } });
     const avg = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length;
-    const store = await Store.findByPk(storeId);
     store.averageRating = avg;
     await store.save();
+    
+    console.log('Rating submitted successfully, new average:', avg);
     res.json({ message: "Rating submitted", rating: userRating });
   } catch (err) {
+    console.error('Rating submission error:', err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-// Get ratings for a store (store owner only)
+// Get ratings for a store (accessible to all authenticated users)
 const getStoreRatings = async (req, res) => {
   const { storeId } = req.params;
   try {
@@ -107,4 +149,19 @@ const getStoreRatings = async (req, res) => {
   }
 };
 
-export { createStore, updateStore, getAllStores, deleteStore, submitRating, getStoreRatings };
+// Get ratings for a store (store owner only) - keeping for backward compatibility
+const getStoreRatingsForOwner = async (req, res) => {
+  const { storeId } = req.params;
+  try {
+    const ratings = await Rating.findAll({
+      where: { storeId },
+      include: [{ model: User, attributes: ['id', 'name', 'email', 'address'] }],
+    });
+    const avg = ratings.length ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length) : 0;
+    res.json({ ratings, average: avg });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+export { createStore, updateStore, getAllStores, deleteStore, submitRating, getStoreRatings, getStoreRatingsForOwner };

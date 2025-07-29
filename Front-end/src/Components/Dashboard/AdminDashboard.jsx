@@ -37,14 +37,16 @@ export default function AdminDashboard() {
       ]);
       setUsers(userRes.data.users);
       setStores(storeRes.data.stores);
-      setOwners(userRes.data.users.filter(u => u.role === 'owner'));
+      const ownerUsers = userRes.data.users.filter(u => u.role === 'owner');
+      console.log('Available owners:', ownerUsers);
+      setOwners(ownerUsers);
       setStats({
         users: userRes.data.users.length,
         stores: storeRes.data.stores.length,
         ratings: storeRes.data.stores.reduce((sum, s) => sum + (s.averageRating > 0 ? 1 : 0), 0),
       });
     } catch (err) {
-      // handle error
+      console.error('Fetch stats error:', err);
     } finally {
       setLoading(false);
     }
@@ -89,19 +91,41 @@ export default function AdminDashboard() {
   };
 
   // Store CRUD
-  const handleAddStore = () => { setEditStore(null); setShowStoreForm(true); };
+  const handleAddStore = () => { 
+    // Refresh owners list before showing form
+    fetchStats();
+    setEditStore(null); 
+    setShowStoreForm(true); 
+  };
   const handleEditStore = (store) => { setEditStore(store); setShowStoreForm(true); };
   const handleDeleteStore = async (id) => {
-    await axios.delete(`http://localhost:5000/api/store/delete/${id}`, { headers: { Authorization: `Bearer ${getToken()}` } });
-    fetchStats();
+    try {
+      await axios.delete(`http://localhost:5000/api/store/delete/${id}`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      fetchStats();
+    } catch (err) {
+      console.error('Delete store error:', err.response?.data || err.message);
+      alert('Failed to delete store: ' + (err.response?.data?.message || err.message));
+    }
   };
   const handleSaveStore = async (store) => {
-    if (store.id) {
-      await axios.patch(`http://localhost:5000/api/store/update/${store.id}`, store, { headers: { Authorization: `Bearer ${getToken()}` } });
-    } else {
-      await axios.post('http://localhost:5000/api/store/create', store, { headers: { Authorization: `Bearer ${getToken()}` } });
+    try {
+      // Ensure ownerId is an integer
+      const storeData = {
+        ...store,
+        ownerId: parseInt(store.ownerId, 10)
+      };
+      
+      if (store.id) {
+        await axios.patch(`http://localhost:5000/api/store/update/${store.id}`, storeData, { headers: { Authorization: `Bearer ${getToken()}` } });
+      } else {
+        console.log('Creating store with data:', storeData);
+        await axios.post('http://localhost:5000/api/store/create', storeData, { headers: { Authorization: `Bearer ${getToken()}` } });
+      }
+      setShowStoreForm(false); setEditStore(null); fetchStats();
+    } catch (err) {
+      console.error('Save store error:', err.response?.data || err.message);
+      alert('Failed to save store: ' + (err.response?.data?.message || err.message));
     }
-    setShowStoreForm(false); setEditStore(null); fetchStats();
   };
 
   if (loading) return <div className="p-8">Loading...</div>;

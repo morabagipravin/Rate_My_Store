@@ -19,7 +19,8 @@ function NavBar() {
       {!isAuthenticated() && <Link to="/register">Register</Link>}
       {isAuthenticated() && <Link to="/dashboard">Dashboard</Link>}
       {isAuthenticated() && <Link to="/update-password">Update Password</Link>}
-      {isAuthenticated() && getRole() === 'admin' && <Link to="/admin">Admin</Link>}
+      {isAuthenticated() && getRole() === 'admin' && <Link to="/admin">Admin Dashboard</Link>}
+      {isAuthenticated() && getRole() === 'admin' && <Link to="/create-admin">Create Admin</Link>}
       {isAuthenticated() && <button onClick={handleLogout} className="ml-auto bg-red-500 text-white px-3 py-1 rounded">Logout</button>}
     </nav>
   );
@@ -33,7 +34,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<ProtectedRoute roles={['user','owner','admin']}><Dashboard /></ProtectedRoute>} />
-        <Route path="/admin" element={<ProtectedRoute roles={['admin']}><Administrator /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute roles={['admin']}><Dashboard /></ProtectedRoute>} />
+        <Route path="/create-admin" element={<ProtectedRoute roles={['admin']}><Administrator /></ProtectedRoute>} />
         <Route path="/update-password" element={<ProtectedRoute roles={['user','owner','admin']}><UpdatePassword /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to={isAuthenticated() ? '/dashboard' : '/login'} />} />
       </Routes>

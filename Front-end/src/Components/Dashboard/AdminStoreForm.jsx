@@ -24,8 +24,24 @@ export default function AdminStoreForm({ initial, onSave, onCancel, owners }) {
     e.preventDefault();
     const err = validate();
     if (err) return setError(err);
+    
+    console.log('Form submitted with data:', formData);
+    console.log('Available owners:', owners);
+    console.log('Selected ownerId:', formData.ownerId, 'Type:', typeof formData.ownerId);
+    
     onSave(formData);
   };
+
+  if (owners.length === 0) {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 rounded p-4">
+        <h3 className="text-yellow-800 font-semibold mb-2">No Store Owners Available</h3>
+        <p className="text-yellow-700 mb-3">You need to create at least one store owner before adding stores.</p>
+        <p className="text-yellow-700 mb-3">Go to "All Users" section and create a user with "Owner" role.</p>
+        <button onClick={onCancel} className="bg-gray-300 px-3 py-1 rounded">Cancel</button>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2">

@@ -6,6 +6,7 @@ import {
   deleteStore,
   submitRating,
   getStoreRatings,
+  getStoreRatingsForOwner,
 } from '../Controller/store.controller.js';
 import authMiddleware from '../middleware/auth.js';
 import roleMiddleware from '../middleware/role.js';
@@ -20,6 +21,7 @@ router.delete('/delete/:id', authMiddleware, roleMiddleware('admin'), deleteStor
 
 // User rating routes
 router.post('/rate', authMiddleware, roleMiddleware('user'), submitRating);
-router.get('/:storeId/ratings', authMiddleware, roleMiddleware('owner'), getStoreRatings);
+router.get('/:storeId/ratings', authMiddleware, getStoreRatings); // Accessible to all authenticated users
+router.get('/:storeId/ratings/owner', authMiddleware, roleMiddleware('owner'), getStoreRatingsForOwner); // Owner only
 
 export default router;
