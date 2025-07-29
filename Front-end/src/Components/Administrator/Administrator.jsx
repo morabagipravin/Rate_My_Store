@@ -6,6 +6,8 @@ const Administrator = () => {
         name: "",
         email: "",
         password: "",
+        address: "",
+        role: "admin"
     });
 
     const [error, setError] = useState("");
@@ -18,26 +20,31 @@ const Administrator = () => {
         setSuccess("");
     };
 
-    const validateEmail = (email) => {
-        return /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email);
-      };
+    const validate = () => {
+        if (formData.name.length < 20 || formData.name.length > 60) return 'Name must be 20-60 characters.';
+        if (!/^\S+@\S+\.\S+$/.test(formData.email)) return 'Invalid email.';
+        if (!formData.address || formData.address.length > 400) return 'Address is required and must be max 400 characters.';
+        if (!/^(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,16}$/.test(formData.password)) return 'Password must be 8-16 chars, include uppercase and special character.';
+        return null;
+    };
 
     // show and hide password 
     const [showPassword , setShowPassword] = useState(false)
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateEmail(formData.email)) {
-            setError("Please enter a valid email address.");
+        const validationError = validate();
+        if (validationError) {
+            setError(validationError);
             return;
         }
 
         try {
-            await axios.post("http://localhost:5000/api/create", formData);
-            setSuccess("User created successfully!");
-            setFormData({ name: "", address: "", email: "", password: "" });
+            await axios.post("http://localhost:5000/api/user/register", formData);
+            setSuccess("Administrator created successfully!");
+            setFormData({ name: "", email: "", password: "", address: "", role: "admin" });
         } catch (err) {
-            setError("Failed to create user.");
+            setError("Failed to create administrator.");
         }
     };
 
@@ -49,7 +56,7 @@ const Administrator = () => {
                     <input
                         type="text"
                         name="name"
-                        placeholder="Name"
+                        placeholder="Name (20-60 characters)"
                         value={formData.name}
                         onChange={handleChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -64,11 +71,20 @@ const Administrator = () => {
                         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                         required
                     />
+                    <textarea
+                        name="address"
+                        placeholder="Address (max 400 characters)"
+                        value={formData.address}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        rows="3"
+                        required
+                    />
                     <div className="relative">
                         <input
                             type={showPassword ? "text" : "password"}
                             name="password"
-                            placeholder="Password"
+                            placeholder="Password (8-16 chars, uppercase + special)"
                             value={formData.password}
                             onChange={handleChange}
                             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -88,7 +104,7 @@ const Administrator = () => {
                         type="submit"
                         className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300"
                     >
-                        Submit
+                        Create Administrator
                     </button>
                 </form>
             </div>
