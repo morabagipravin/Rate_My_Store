@@ -23,20 +23,17 @@ export default function UserDashboard() {
     if (!token) return;
     
     try {
-      // Fetch user's ratings for all stores
       const userRatings = {};
       for (const store of stores) {
         try {
           const res = await axios.get(`http://localhost:5000/api/store/${store.id}/ratings`, {
             headers: { Authorization: `Bearer ${token}` }
           });
-          // Find the current user's rating in the ratings array
           const currentUserRating = res.data.ratings.find(r => r.userId === getUserIdFromToken());
           if (currentUserRating) {
             userRatings[store.id] = currentUserRating.rating;
           }
         } catch (err) {
-          // If user doesn't have permission or no ratings, continue
           console.log(`No ratings found for store ${store.id}`);
         }
       }
@@ -46,7 +43,6 @@ export default function UserDashboard() {
     }
   };
 
-  // Helper function to get user ID from token
   const getUserIdFromToken = () => {
     const token = getToken();
     if (!token) return null;
@@ -74,10 +70,8 @@ export default function UserDashboard() {
       await axios.post('http://localhost:5000/api/store/rate', { storeId, rating }, { headers: { Authorization: `Bearer ${getToken()}` } });
       console.log('Rating submitted successfully');
       
-      // Update local state immediately for better UX
       setMyRatings(prev => ({ ...prev, [storeId]: rating }));
       
-      // Refresh stores to get updated average ratings
       fetchStores();
     } catch (err) {
       console.error('Rating submission error:', err.response?.data || err.message);

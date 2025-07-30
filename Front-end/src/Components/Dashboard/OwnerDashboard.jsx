@@ -11,11 +11,9 @@ export default function OwnerDashboard() {
     setLoading(true);
     try {
       const res = await axios.get('http://localhost:5000/api/store/all', { headers: { Authorization: `Bearer ${getToken()}` } });
-      // Only stores owned by this owner
       const ownerId = JSON.parse(atob(getToken().split('.')[1])).id;
       const myStores = res.data.stores.filter(s => s.ownerId === ownerId);
       setStores(myStores);
-      // Fetch ratings for each store
       for (const store of myStores) {
         const r = await axios.get(`http://localhost:5000/api/store/${store.id}/ratings`, { headers: { Authorization: `Bearer ${getToken()}` } });
         setRatings(prev => ({ ...prev, [store.id]: r.data }));

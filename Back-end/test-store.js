@@ -12,12 +12,11 @@ import Store from './Model/store.model.js';
       name: 'Test Store',
       email: 'teststore@example.com',
       address: 'Test Address',
-      ownerId: 6  // This user exists and is an owner
+      ownerId: 6  
     };
     
     console.log('Testing store creation with:', testStore);
     
-    // Check if owner exists
     const owner = await User.findByPk(6);
     if (!owner) {
       console.log('❌ Owner not found with ID: 6');
@@ -31,7 +30,6 @@ import Store from './Model/store.model.js';
     }
     console.log('✅ User is a valid owner');
     
-    // Check if store email already exists
     const existing = await Store.findOne({ where: { email: testStore.email } });
     if (existing) {
       console.log('❌ Store with email already exists:', testStore.email);
@@ -39,11 +37,9 @@ import Store from './Model/store.model.js';
     }
     console.log('✅ Email is available');
     
-    // Try to create store
     const store = await Store.create(testStore);
     console.log('✅ Store created successfully:', store.id);
     
-    // Clean up - delete the test store
     await Store.destroy({ where: { id: store.id } });
     console.log('✅ Test store cleaned up');
     

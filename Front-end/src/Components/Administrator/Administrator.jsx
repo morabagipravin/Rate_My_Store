@@ -27,8 +27,6 @@ const Administrator = () => {
         if (!/^(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,16}$/.test(formData.password)) return 'Password must be 8-16 chars, include uppercase and special character.';
         return null;
     };
-
-    // show and hide password 
     const [showPassword , setShowPassword] = useState(false)
 
     const handleSubmit = async (e) => {

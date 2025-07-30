@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import { connectDB } from './DB/DB.Connection.js';
 import userRoutes from './Routes/user.route.js';
 import storeRoutes from './Routes/store.route.js';
-// import ratingRoutes from './Routes/rating.route.js'; // To be created if needed
 
 dotenv.config();
 
@@ -18,7 +17,6 @@ connectDB();
 // Routes
 app.use('/api/user', userRoutes);
 app.use('/api/store', storeRoutes);
-// app.use('/api/rating', ratingRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running');

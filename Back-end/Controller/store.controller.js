@@ -3,7 +3,6 @@ import User from "../Model/user.model.js";
 import Rating from "../Model/rating.model.js";
 import { Op } from "sequelize";
 
-// Create store (admin only)
 const createStore = async (req, res) => {
   console.log('createStore called with body:', req.body);
   console.log('User from auth middleware:', req.user);
@@ -14,7 +13,7 @@ const createStore = async (req, res) => {
     return res.status(400).json({ message: "All fields are required (name, email, address, ownerId)" });
   }
   try {
-    // Check if owner exists
+
     const owner = await User.findByPk(ownerId);
     if (!owner) {
       console.log('Owner not found with ID:', ownerId);
@@ -25,7 +24,6 @@ const createStore = async (req, res) => {
       return res.status(400).json({ message: `Selected user (${owner.name}) is not a store owner. Current role: ${owner.role}` });
     }
     
-    // Check if store email already exists
     const existing = await Store.findOne({ where: { email } });
     if (existing) {
       console.log('Store with email already exists:', email);
@@ -42,7 +40,7 @@ const createStore = async (req, res) => {
   }
 };
 
-// Update store (admin only)
+// Update store 
 const updateStore = async (req, res) => {
   const { id } = req.params;
   const { name, email, address } = req.body;
@@ -59,7 +57,7 @@ const updateStore = async (req, res) => {
   }
 };
 
-// Get all stores (with filtering, sorting, and search)
+// Get all stores 
 const getAllStores = async (req, res) => {
   const { name, address, sortBy = "createdAt", order = "DESC" } = req.query;
   const where = {};
@@ -77,7 +75,7 @@ const getAllStores = async (req, res) => {
   }
 };
 
-// Delete store (admin only)
+// Delete store
 const deleteStore = async (req, res) => {
   const { id } = req.params;
   try {
@@ -89,20 +87,19 @@ const deleteStore = async (req, res) => {
   }
 };
 
-// Submit or update rating (user only)
+// Submit or update rating 
 const submitRating = async (req, res) => {
   console.log('submitRating called with body:', req.body);
   console.log('User from auth middleware:', req.user);
   
   const { storeId, rating } = req.body;
-  const userId = req.user.id; // from auth middleware
+  const userId = req.user.id; 
   if (!storeId || !rating) return res.status(400).json({ message: "Store ID and rating required" });
   if (rating < 1 || rating > 5) return res.status(400).json({ message: "Rating must be between 1 and 5" });
   
   console.log('Processing rating:', { userId, storeId, rating });
   
   try {
-    // Check if store exists
     const store = await Store.findByPk(storeId);
     if (!store) {
       console.log('Store not found with ID:', storeId);
@@ -120,7 +117,6 @@ const submitRating = async (req, res) => {
       userRating = await Rating.create({ userId, storeId, rating });
     }
     
-    // Update store's average rating
     const ratings = await Rating.findAll({ where: { storeId } });
     const avg = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length;
     store.averageRating = avg;
@@ -134,7 +130,6 @@ const submitRating = async (req, res) => {
   }
 };
 
-// Get ratings for a store (accessible to all authenticated users)
 const getStoreRatings = async (req, res) => {
   const { storeId } = req.params;
   try {
@@ -149,7 +144,6 @@ const getStoreRatings = async (req, res) => {
   }
 };
 
-// Get ratings for a store (store owner only) - keeping for backward compatibility
 const getStoreRatingsForOwner = async (req, res) => {
   const { storeId } = req.params;
   try {

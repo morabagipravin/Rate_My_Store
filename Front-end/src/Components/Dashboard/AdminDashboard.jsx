@@ -92,7 +92,6 @@ export default function AdminDashboard() {
 
   // Store CRUD
   const handleAddStore = () => { 
-    // Refresh owners list before showing form
     fetchStats();
     setEditStore(null); 
     setShowStoreForm(true); 
@@ -109,7 +108,6 @@ export default function AdminDashboard() {
   };
   const handleSaveStore = async (store) => {
     try {
-      // Ensure ownerId is an integer
       const storeData = {
         ...store,
         ownerId: parseInt(store.ownerId, 10)

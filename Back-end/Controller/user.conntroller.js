@@ -5,7 +5,6 @@ import { Op } from "sequelize";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
-// Helper: Validate user input
 function validateUserInput({ name, address, email, password }) {
   if (!name || name.length < 20 || name.length > 60) {
     return "Name must be between 20 and 60 characters.";
@@ -56,7 +55,7 @@ const loginUser = async (req, res) => {
 
 // Update user password
 const updatePassword = async (req, res) => {
-  const { id } = req.user; // from auth middleware
+  const { id } = req.user; 
   const { oldPassword, newPassword } = req.body;
   if (!oldPassword || !newPassword) return res.status(400).json({ message: "Old and new password required" });
   if (!/^(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,16}$/.test(newPassword)) {
@@ -75,7 +74,6 @@ const updatePassword = async (req, res) => {
   }
 };
 
-// Get all users (with filtering, sorting)
 const getAllUsers = async (req, res) => {
   const { name, email, address, role, sortBy = "createdAt", order = "DESC" } = req.query;
   const where = {};

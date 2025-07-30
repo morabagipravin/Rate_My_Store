@@ -19,14 +19,12 @@ const Rating = sequelize.define('Rating', {
   },
 }, {
   timestamps: true,
-  freezeTableName: true, // Ensures table name is 'Rating'
+  freezeTableName: true, 
 });
 
-// Define the many-to-many relationship through Rating
 User.belongsToMany(Store, { through: Rating, foreignKey: 'userId', onDelete: 'CASCADE' });
 Store.belongsToMany(User, { through: Rating, foreignKey: 'storeId', onDelete: 'CASCADE' });
 
-// Also define direct relationships for easier querying
 Rating.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
 Rating.belongsTo(Store, { foreignKey: 'storeId', onDelete: 'CASCADE' });
 

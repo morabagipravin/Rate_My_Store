@@ -30,7 +30,7 @@ const Store = sequelize.define('Store', {
   },
 }, {
   timestamps: true,
-  freezeTableName: true, // Ensures table name is 'Store'
+  freezeTableName: true, 
 });
 
 Store.belongsTo(User, { as: 'owner', foreignKey: 'ownerId', onDelete: 'CASCADE' });
