@@ -1,5 +1,8 @@
 # RateMyStore - Store Rating System
 
+![Alt text](../Rate_My_Store/Front-end/public/demo.png.png)
+
+
 A full-stack web application for rating stores with role-based access control.
 
 ## 🛠️ Tech Stack
