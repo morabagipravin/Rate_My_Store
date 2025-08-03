@@ -1,6 +1,6 @@
 # RateMyStore - Store Rating System
 
-![App Screenshot](./Front-end/assets/demo.png)
+![App Screenshot](./frontend/assets/demo.png)
 
 
 A full-stack web application for rating stores with role-based access control.
@@ -24,12 +24,12 @@ A full-stack web application for rating stores with role-based access control.
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
-cd RateMyStore
+git clone <https://github.com/morabagipravin/Rate_My_Store.git>
+cd Rate_My_Store
 ```
 
 ### 2. Setup Database
-Create a PostgreSQL database and update the `.env` file in `Back-end/`:
+Create a PostgreSQL database and update the `.env` file in `backend/`:
 
 ```env
 DB_HOST=localhost
@@ -43,20 +43,20 @@ JWT_SECRET=your_secret_key
 
 ### 3. Install Dependencies
 ```bash
-cd Back-end
+cd backend
 npm install
 
-cd ../Front-end
+cd ../frontend
 npm install
 npm install react-router-dom
 ```
 
 ### 4. Start the Application
 ```bash
-cd Back-end
+cd backend
 npm start
 
-cd Front-end
+cd frontend
 npm run dev
 ```
 
