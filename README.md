@@ -24,8 +24,8 @@ A full-stack web application for rating stores with role-based access control.
 
 ### 1. Clone the Repository
 ```bash
-git clone <https://github.com/morabagipravin/Rate_My_Store.git>
-cd Rate_My_Store
+git clone <https://github.com/morabagipravin/ShopStar.git>
+cd ShopStar
 ```
 
 ### 2. Setup Database
